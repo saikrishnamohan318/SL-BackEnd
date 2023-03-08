@@ -13,6 +13,9 @@ module.exports = mongoose.model("Q&A", {
             }
         } 
     },
+    verified: {
+        type: Boolean
+    },
     QA: {
         type: Array
     }

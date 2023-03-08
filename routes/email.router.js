@@ -1,10 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var emailctrl = require('../controllers/email.controller');
+var emailController = require('../controllers/email.controller');
 
-router.post('/emailcheck', emailctrl.emailcheck);
-router.post('/saveData', emailctrl.saveData);
-router.get('/getDataById/:id', emailctrl.getDataById);
-router.get('/getDataByMail/:email', emailctrl.getDataByEmail);
+router.post('/emailcheck', emailController.emailcheck);
+router.post('/sendotp', emailController.sendOTP);
+router.post('/saveEmail', emailController.saveEmail);
+router.put('/saveData', emailController.saveData);
+router.get('/getDataById/:id', emailController.getDataById);
+router.get('/getDataByMail/:email', emailController.getDataByEmail);
 
 module.exports = router;
