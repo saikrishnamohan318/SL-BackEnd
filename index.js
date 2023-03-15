@@ -1,9 +1,14 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var proxy = require('./proxy');
+var cors = require('cors');
 var emailRouter = require('./routes/email.router');
 var app = express();
-proxy(app);
+
+const corsOptions = {
+    origin: 'https://sl-back-end.vercel.app/', // Allow requests from example.com only
+    optionsSuccessStatus: 200 // Return a successful status code for preflight requests
+  };
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use('/email', emailRouter);
