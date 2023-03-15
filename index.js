@@ -5,9 +5,8 @@ var emailRouter = require('./routes/email.router');
 var app = express();
 
 const corsOptions = {
-    origin: 'https://sl-back-end.vercel.app/', // Allow requests from example.com only
-    optionsSuccessStatus: 200 // Return a successful status code for preflight requests
-  };
+    origin: ['https://sl-back-end.vercel.app/email/emailcheck', 'https://sl-back-end.vercel.app/email/sendotp', 'https://sl-back-end.vercel.app/email/saveEmail', 'https://sl-back-end.vercel.app/email/compareOTP', 'https://sl-back-end.vercel.app/data/saveData']
+};
 app.use(cors(corsOptions));
 app.use(express.json());
 
