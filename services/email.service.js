@@ -1,7 +1,7 @@
 const emailModel = require('../models/email.model');
 const nodemailer = require('nodemailer');
 const otpGenerator = require('otp-generator');
-const bcrypt = require('bcrypt');
+const crypto = require('crypto');
 
 class emailService {
     constructor() {
@@ -12,6 +12,10 @@ class emailService {
             pass: 'ztapvwydvfppwoma',
           },
         });
+
+        this.encryptedOTP = '',
+        this.key = '',
+        this.iv = ''
     }
 
     create(data) {
@@ -31,29 +35,47 @@ class emailService {
     }
     
     sendOTP(email) {
-        const otpLength = 4;
-        const options = {
-          upperCaseAlphabets: false,
-          lowerCaseAlphabets: false,
-          specialChars: false,
-        };
-        const otp = otpGenerator.generate(otpLength, options);
-        const mailOptions = {
-          from: 'selflearningtoolmail@gmail.com',
-          to: email,
-          subject: 'Email Verification OTP',
-          text: `Your OTP is ${otp}`,
-        };
+      const otpLength = 4;
+      const options = {
+        upperCaseAlphabets: false,
+        lowerCaseAlphabets: false,
+        specialChars: false,
+      };
+      const otp = otpGenerator.generate(otpLength, options);
+      const mailOptions = {
+        from: 'selflearningtoolmail@gmail.com',
+        to: email,
+        subject: 'Email Verification OTP',
+        text: `Your OTP is ${otp}`,
+      };
     
-        const saltRounds = 10;
-        const code = bcrypt.hash(otp, saltRounds);
-        try {
-          this.transporter.sendMail(mailOptions);
-          return code;
-        } catch (err) {
-          console.log(err);
-          throw err;
-        }
+      const key = crypto.randomBytes(32);
+      const iv = crypto.randomBytes(16);
+      const cipher = crypto.createCipheriv('aes-256-cbc', key, iv);
+      let encrypted = cipher.update(otp, 'utf8', 'hex');
+      encrypted += cipher.final('hex');
+    
+      this.encryptedOTP = encrypted;
+      this.key = key;
+      this.iv = iv;
+    
+      try {
+        this.transporter.sendMail(mailOptions);
+        return this.encryptedOTP;
+      } catch (err) {
+        console.log(err);
+        throw err;
+      }
     }
+    
+    verifyOTP(otp) {
+      const decipher = crypto.createDecipheriv('aes-256-cbc', this.key, this.iv);
+      let decrypted = decipher.update(this.encryptedOTP, 'hex', 'utf8');
+      decrypted += decipher.final('utf8');
+      console.log(decrypted);
+    
+      return decrypted === otp;
+    }
+    
 }
 module.exports = new emailService();

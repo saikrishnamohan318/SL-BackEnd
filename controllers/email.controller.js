@@ -1,5 +1,4 @@
 const emailService = require('../services/email.service');
-const bcrypt = require('bcrypt');
 
 class EmailController {
     async emailcheck(req, res) {
@@ -18,9 +17,8 @@ class EmailController {
 
     async sendOTP(req, res) {
         try {
-          const hc = await emailService.sendOTP(req.body.email);
-          res.send({ message: 'mail sent successfully', hashCode: hc});
-          console.log(hc);
+          await emailService.sendOTP(req.body.email);
+          res.send({ message: 'mail sent successfully'});
         } catch (err) {
           res.send({status: 'failed', message: err.message});
         }
@@ -29,23 +27,13 @@ class EmailController {
     compareOTP(req, res) {
         try {
           const otp = req.body.otp;
-          const hash = req.body.hash;
-      
-          if (!otp || !hash) {
-            return res.send({ status: 'failed', message: 'OTP and hash are required.' });
+
+          const isOTPValid = emailService.verifyOTP(otp);
+          if(isOTPValid){
+            res.send({status: "otp verified"});
+          }else{
+            res.send({status: "incorrect otp"});
           }
-      
-          bcrypt.compare(otp, hash, function(err, result) {
-            if (err){
-              res.send({ status: 'failed', message: 'An error occurred.' });
-            }
-      
-            if (result) {
-              res.send({ status: 'true' });
-            } else {
-              res.send({ status: 'false' });
-            }
-          });
         } catch (err) {
           console.error(err);
           res.send({ status: 'failed', message: 'An error occurred.' });
@@ -55,19 +43,15 @@ class EmailController {
 
     async saveEmail(req, res) {
         try {
-            const code = req.body.code;
             const otp = req.body.otp;
-            bcrypt.compare(otp, code, async function(err, result){
-                if(result){
-                    const es = await emailService.create({email: req.body.email, verified: req.body.verified});
-                    res.send({ status: 'email added', id: es._id });
-                }else{
-                    res.send({status: 'invalid OTP'});
-                }
-                if(err){
-                    res.send({status: 'failed'});
-                }
-            })
+
+            const validOTP = emailService.verifyOTP(otp);
+            if(validOTP){
+                const es = await emailService.create({email: req.body.email, verified: req.body.verified});
+                res.send({ status: 'email added', id: es._id });
+            }else{
+                res.send({status: 'invalid OTP'});
+            }
         } catch (err) {
           res.send({ status: 'failed', message: err.message });
         }
