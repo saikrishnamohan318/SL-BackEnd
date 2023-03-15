@@ -4,12 +4,13 @@ const bcrypt = require('bcrypt');
 class EmailController {
     async emailcheck(req, res) {
         try {
-            const mail = await emailService.getByEmail(req.body.email);
-                if(mail){
-                    res.send({status: 'email already exsists'});
-                }else {
-                    res.send({status: 'register'});
-                }
+            const eMail = req.body.email;
+            const mail = await emailService.getByEmail(eMail);
+            if(mail){
+                res.send({status: 'email already exsists'});
+            }else {
+                res.send({status: 'register'});
+            }
         } catch (err){
             res.send({status: 'failed', message: err.message});
         }
@@ -19,10 +20,38 @@ class EmailController {
         try {
           const hc = await emailService.sendOTP(req.body.email);
           res.send({ message: 'mail sent successfully', hashCode: hc});
+          console.log(hc);
         } catch (err) {
           res.send({status: 'failed', message: err.message});
         }
     }
+
+    compareOTP(req, res) {
+        try {
+          const otp = req.body.otp;
+          const hash = req.body.hash;
+      
+          if (!otp || !hash) {
+            return res.send({ status: 'failed', message: 'OTP and hash are required.' });
+          }
+      
+          bcrypt.compare(otp, hash, function(err, result) {
+            if (err){
+              res.send({ status: 'failed', message: 'An error occurred.' });
+            }
+      
+            if (result) {
+              res.send({ status: 'true' });
+            } else {
+              res.send({ status: 'false' });
+            }
+          });
+        } catch (err) {
+          console.error(err);
+          res.send({ status: 'failed', message: 'An error occurred.' });
+        }
+      }
+      
 
     async saveEmail(req, res) {
         try {
