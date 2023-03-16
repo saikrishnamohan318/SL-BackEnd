@@ -5,7 +5,6 @@ class EmailController {
         try {
             const eMail = req.body.email;
             const mail = await emailService.getByEmail(eMail);
-            res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
             if(mail){
                 res.send({status: 'email already exsists'});
             }else {
@@ -19,7 +18,6 @@ class EmailController {
     sendOTP(req, res) {
         try {
           emailService.sendOTP(req.body.email);
-          res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
           res.send({ message: 'mail sent successfully'});
         } catch (err) {
           res.send({status: 'failed', message: err.message});
@@ -31,7 +29,6 @@ class EmailController {
           const otp = req.body.otp;
 
           const isOTPValid = emailService.verifyOTP(otp);
-          res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
           if(isOTPValid){
             res.send({status: "otp verified"});
           }else{
@@ -49,7 +46,6 @@ class EmailController {
             const otp = req.body.otp;
 
             const validOTP = emailService.verifyOTP(otp);
-            res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
             if(validOTP){
                 const es = await emailService.create({email: req.body.email, verified: req.body.verified});
                 res.send({ status: 'email added', id: es._id });
@@ -64,7 +60,6 @@ class EmailController {
     async getDataById(req, res) {
         try {
             const id = await emailService.getById(req.params.id);
-            res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
             res.send({status: 'success', data: id});
         }
         catch(err) {
@@ -75,7 +70,6 @@ class EmailController {
     async getDataByEmail(req, res) {
         try {
             const email = await emailService.getByEmail(req.params.email);
-            res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
             res.send({status: 'success', data: email});
         }catch(err) {
             res.send({status: 'failed', message: err.message});
@@ -85,7 +79,6 @@ class EmailController {
     async saveData(req, res) {
         try {
             await emailService.update(req.body);
-            res.header('Access-Control-Allow-Origin', 'http://localhost:3000');
             res.send({status: 'success'});
         } catch(err) {
             res.send({status: 'failed', message: err.message});
