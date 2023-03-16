@@ -3,9 +3,13 @@ var mongoose = require('mongoose');
 var cors = require('cors');
 var emailRouter = require('./routes/email.router');
 var app = express();
-app.use(cors({
-    origin: 'http://localhost:3000'
-}));  
+
+const corsOptions = {
+    origin: '*',
+    methods: [ 'GET', 'POST', 'PUT' ],
+    allowedHeaders: [ 'Content-Type' ]
+}
+app.use(cors(corsOptions));  
 app.use(express.json());
 
 app.use('/email', emailRouter);
