@@ -1,8 +1,10 @@
 var express = require('express');
 var mongoose = require('mongoose');
-var emailRouter = require('./routes/email.router');
+var cors = require('cors');
 var app = express();
+app.use(cors());
 app.use(express.json());
+var emailRouter = require('./routes/email.router');
 
 app.use('/email', emailRouter);
 app.use('/data', emailRouter);
